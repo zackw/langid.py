@@ -47,10 +47,10 @@ import json
 import optparse
 import logging
 import numpy as np
-from cPickle import loads
+from pickle import loads
 from wsgiref.simple_server import make_server
 from wsgiref.util import shift_path_info
-from urlparse import parse_qs
+from urllib.parse import parse_qs
 from collections import defaultdict
 
 logger = logging.getLogger(__name__)
@@ -224,7 +224,7 @@ class LanguageIdentifier(object):
       # to speed up processing.
       for lang in langs:
         if lang not in nb_classes:
-          raise ValueError, "Unknown language code %s" % lang
+          raise ValueError("Unknown language code %s" % lang)
 
       subset_mask = np.fromiter((l in langs for l in nb_classes), dtype=bool)
       self.nb_classes = [ c for c in nb_classes if c in langs ]
@@ -235,13 +235,13 @@ class LanguageIdentifier(object):
     """
     Map an instance into the feature space of the trained model.
     """
-    if isinstance(text, unicode):
+    if isinstance(text, str):
       text = text.encode('utf8')
 
     arr = np.zeros((self.nb_numfeats,), dtype='uint32')
 
     # Convert the text to a sequence of ascii values
-    ords = map(ord, text)
+    ords = list(map(ord, text))
 
     # Count the number of times we enter each state
     state = 0
@@ -469,7 +469,7 @@ def main():
     try:
       identifier = LanguageIdentifier.from_modelpath(options.model, norm_probs = options.normalize)
       logger.info("Using external model: %s", options.model)
-    except IOError, e:
+    except IOError as e:
       logger.warning("Failed to load %s: %s" % (options.model,e))
   
   if identifier is None:
@@ -493,12 +493,12 @@ def main():
 
 
   if options.url:
-    import urllib2
+    import urllib.request, urllib.error, urllib.parse
     import contextlib
-    with contextlib.closing(urllib2.urlopen(options.url)) as url:
+    with contextlib.closing(urllib.request.urlopen(options.url)) as url:
       text = url.read()
       output = _process(text)
-      print options.url, len(text), output
+      print(options.url, len(text), output)
     
   elif options.serve or options.demo:
     # from http://stackoverflow.com/questions/166506/finding-local-ip-addresses-in-python
@@ -529,8 +529,8 @@ def main():
       evwsgi.set_debug(0)
       evwsgi.run()
     except ImportError:
-      print "Listening on %s:%d" % (hostname, int(options.port))
-      print "Press Ctrl+C to exit"
+      print("Listening on %s:%d" % (hostname, int(options.port)))
+      print("Press Ctrl+C to exit")
       httpd = make_server(hostname, int(options.port), application)
       try:
         httpd.serve_forever()
@@ -546,7 +546,7 @@ def main():
       if len(args) > 0:
         paths = args
       else:
-        paths = map(str.strip,sys.stdin)
+        paths = list(map(str.strip,sys.stdin))
 
       for path in paths:
         if path:
@@ -573,18 +573,18 @@ def main():
       # Interactive mode
       while True:
         try:
-          print ">>>",
-          text = raw_input()
+          print(">>>", end=' ')
+          text = input()
         except Exception:
           break
-        print _process(text)
+        print(_process(text))
     else:
       # Redirected
       if options.line:
         for line in sys.stdin.readlines():
-          print _process(line)
+          print(_process(line))
       else:
-        print _process(sys.stdin.read())
+        print(_process(sys.stdin.read()))
      
 
 if __name__ == "__main__":

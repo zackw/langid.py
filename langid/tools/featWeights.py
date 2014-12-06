@@ -10,7 +10,7 @@ Marco Lui, February 2013
 import argparse, os, csv, sys
 import numpy as np
 import bz2, base64
-from cPickle import loads
+from pickle import loads
 
 from langid.train.common import read_weights, read_features
 
@@ -29,16 +29,16 @@ if __name__ == "__main__":
   # Try to determine the set of features to consider
   if args.features:
     # Use a pre-determined feature list
-    print >>sys.stderr,  "using user-supplied feature list:", args.features
+    print("using user-supplied feature list:", args.features, file=sys.stderr)
     feats = read_features(args.features)
   elif os.path.exists(model_file('LDfeats')):
     # Use LDfeats
-    print >>sys.stderr,  "using LDfeats"
+    print("using LDfeats", file=sys.stderr)
     feats = read_features(model_file('LDfeats'))
   else:
     raise ValueError("no suitable feature list")
 
-  print >>sys.stderr, "considering {0} features".format(len(feats))
+  print("considering {0} features".format(len(feats)), file=sys.stderr)
 
   records = dict( (k, {}) for k in feats )
   headers = []
@@ -50,7 +50,7 @@ if __name__ == "__main__":
 
   # Document Frequency
   if os.path.exists(model_file('DF_all')):
-    print >>sys.stderr, "found weights for document frequency"
+    print("found weights for document frequency", file=sys.stderr)
     w = read_weights(model_file('DF_all'))
     headers.append('DF')
     for k in feats:
@@ -58,7 +58,7 @@ if __name__ == "__main__":
 
   # IG weights for the all-languages event
   if os.path.exists(model_file('IGweights.lang')):
-    print >>sys.stderr, "found weights for lang"
+    print("found weights for lang", file=sys.stderr)
     w = read_weights(model_file('IGweights.lang'))
     headers.append('IGlang')
     for k in feats:
@@ -66,7 +66,7 @@ if __name__ == "__main__":
 
   # IG weights for the all-domains event
   if os.path.exists(model_file('IGweights.domain')):
-    print >>sys.stderr, "found weights for domain"
+    print("found weights for domain", file=sys.stderr)
     w = read_weights(model_file('IGweights.domain'))
     headers.append('IGdomain')
     for k in feats:
@@ -74,7 +74,7 @@ if __name__ == "__main__":
 
   # IG weights for language-binarized
   if args.bin and os.path.exists(model_file('IGweights.lang.bin')) and os.path.exists(model_file('lang_index')):
-    print >>sys.stderr, "found weights for lang.bin"
+    print("found weights for lang.bin", file=sys.stderr)
     w = read_weights(model_file('IGweights.lang.bin'))
 
     # find the list of langs in-order
@@ -85,10 +85,10 @@ if __name__ == "__main__":
     r_h = ['IGlang.bin.{0}'.format(l) for l in langs]
     headers.extend( r_h )
     for k in feats:
-      records[k].update( dict(zip(r_h, w[k])) )
+      records[k].update( dict(list(zip(r_h, w[k]))) )
         
   if os.path.exists(model_file('LDfeats.scanner')) and os.path.exists(model_file('model')):
-    print >>sys.stderr, "found weights for P(t|c)"
+    print("found weights for P(t|c)", file=sys.stderr)
     with open(model_file('model')) as f:
       model = loads(bz2.decompress(base64.b64decode(f.read())))
     with open(model_file('LDfeats.scanner')) as f:
@@ -100,12 +100,12 @@ if __name__ == "__main__":
     # Normalize to 1 on the term axis
     for i in range(nb_ptc.shape[1]):
       nb_ptc[:,i] = (1/np.exp(nb_ptc[:,i][None,:] - nb_ptc[:,i][:,None]).sum(1))
-    w = dict(zip(nb_feats, nb_ptc))
+    w = dict(list(zip(nb_feats, nb_ptc)))
 
     r_h = ['ptc.{0}'.format(l) for l in nb_classes]
     headers.extend( r_h )
     for k in feats:
-      records[k].update( dict(zip(r_h, w[k])) )
+      records[k].update( dict(list(zip(r_h, w[k]))) )
 
   if args.raw:
     headers.append('feat')
@@ -114,10 +114,10 @@ if __name__ == "__main__":
 
 
 
-  print >>sys.stderr, "writing output"
+  print("writing output", file=sys.stderr)
   with open(args.output, 'w') as f:
     writer = csv.DictWriter(f,headers)
     writer.writeheader()
-    writer.writerows(records.values())
+    writer.writerows(list(records.values()))
   
-  print >>sys.stderr, "done"
+  print("done", file=sys.stderr)
