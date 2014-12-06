@@ -18,22 +18,23 @@ import json
 import optparse
 
 if __name__ == "__main__":
-  parser = optparse.OptionParser()
-  parser.add_option('-l', '--langs',
-                    dest='langs', help='comma-separated set of target ISO639 language codes (e.g en,de)')
-  opts, args = parser.parse_args()
+    parser = optparse.OptionParser()
+    parser.add_option('-l', '--langs',
+                      dest='langs',
+                      help='comma-separated set of target ISO639 language codes (e.g en,de)')
+    opts, args = parser.parse_args()
 
-  lang_set = set(opts.langs.split(",")) if opts.langs else None
+    lang_set = set(opts.langs.split(",")) if opts.langs else None
 
-  try:
-    for line in sys.stdin:
-      j = json.loads(line)
-      if j.get('retweet_count') == 0:
-        text = j.get('text')
-        if text:
-          lang, conf = langid.classify(text)
-          if lang_set is None or lang in lang_set:
-            print("{0}: {1}".format(lang, text.encode('utf8')))
-  except (IOError, KeyboardInterrupt):
-    # Terminate on broken pipe or ^C
-    pass
+    try:
+        for line in sys.stdin:
+            j = json.loads(line)
+            if j.get('retweet_count') == 0:
+                text = j.get('text')
+                if text:
+                    lang, conf = langid.classify(text)
+                    if lang_set is None or lang in lang_set:
+                        print("{0}: {1}".format(lang, text.encode('utf8')))
+    except (IOError, KeyboardInterrupt):
+        # Terminate on broken pipe or ^C
+        pass
