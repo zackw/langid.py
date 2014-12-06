@@ -75,9 +75,9 @@ class NGramTokenizer(object):
     for i in range(max_order):
       for j in range(i):
         # advance iterators, ignoring result
-        t[i].next()
+        next(t[i])
     while True:
-      token = ''.join(tn.next() for tn in t)
+      token = ''.join(next(tn) for tn in t)
       if len(token) < max_order: break
       for n in range(min_order-1, max_order):
         yield token[:n+1]
@@ -99,9 +99,9 @@ class WordNGramTokenizer(object):
     for i in range(max_order):
       for j in range(i):
         # advance iterators, ignoring result
-        t[i].next()
+        next(t[i])
     while True:
-      token = [tn.next() for tn in t]
+      token = [next(tn) for tn in t]
       if len(token) < max_order: break
       for n in range(min_order-1, max_order):
         yield ' '.join(token[:n+1])
@@ -155,7 +155,7 @@ def pass_tokenize(chunk_items):
         text = f.read()
         poss = max(1, len(text) - __sample_size)  # possible start locations
         count = min(poss, __sample_count)  # reduce number of samples if document is too short
-        offsets = random.sample(range(poss), count)
+        offsets = random.sample(list(range(poss)), count)
         for offset in offsets:
           tokens = extractor(text[offset: offset+__sample_size])
           if args.__term_freq:
@@ -164,7 +164,7 @@ def pass_tokenize(chunk_items):
           else:
             # Document Frequency
             tokenset = Counter(set(tokens))
-          for token, count in tokenset.iteritems():
+          for token, count in tokenset.items():
             term_lng_freq[token][lang_id] += count
             term_dom_freq[token][domain_id] += count
       elif __line_level:
@@ -177,7 +177,7 @@ def pass_tokenize(chunk_items):
           else:
             # Document Frequency
             tokenset = Counter(set(tokens))
-          for token, count in tokenset.iteritems():
+          for token, count in tokenset.items():
             term_lng_freq[token][lang_id] += count
             term_dom_freq[token][domain_id] += count
           
@@ -190,7 +190,7 @@ def pass_tokenize(chunk_items):
         else:
           # Document Frequency
           tokenset = Counter(set(tokens))
-        for token, count in tokenset.iteritems():
+        for token, count in tokenset.items():
           term_lng_freq[token][lang_id] += count
           term_dom_freq[token][domain_id] += count
 
@@ -201,9 +201,9 @@ def pass_tokenize(chunk_items):
 
   for term in term_lng_freq:
     bucket_index = hash(term) % len(b_freq_lang)
-    for lang, count in term_lng_freq[term].iteritems():
+    for lang, count in term_lng_freq[term].items():
       b_freq_lang[bucket_index].write(marshal.dumps((term, lang, count)))
-    for domain, count in term_dom_freq[term].iteritems():
+    for domain, count in term_dom_freq[term].items():
       b_freq_domain[bucket_index].write(marshal.dumps((term, domain, count)))
 
   # Close all the open files
@@ -227,7 +227,7 @@ def build_index(items, tokenizer, outdir, buckets=NUM_BUCKETS,
   if jobs is None:
     jobs = cpu_count() + 4
 
-  b_dirs = [ os.path.join(outdir,"bucket{0}".format(i)) for i in range(buckets) ]
+  b_dirs = [os.path.join(outdir, "bucket{0}".format(i)) for i in range(buckets)]
 
   for d in b_dirs:
     os.mkdir(d)
@@ -236,13 +236,12 @@ def build_index(items, tokenizer, outdir, buckets=NUM_BUCKETS,
    
   # If there are few items, make the chunk size such that each job
   # will have 2 chunks
-  chunk_size = max(1,min(len(items) / (jobs * 2), chunksize))
+  chunk_size = max(1, min(len(items) / (jobs * 2), chunksize))
   item_chunks = list(chunk(items, chunk_size))
   pass_tokenize_globals = (tokenizer, b_dirs, sample_count, sample_size, term_freq, line_level)
 
   with MapPool(jobs, setup_pass_tokenize, pass_tokenize_globals) as f:
     pass_tokenize_out = f(pass_tokenize, item_chunks)
-
 
     doc_count = defaultdict(int)
     chunk_count = len(item_chunks)
@@ -263,23 +262,40 @@ def build_index(items, tokenizer, outdir, buckets=NUM_BUCKETS,
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
-  parser.add_argument("-j","--jobs", type=int, metavar='N', help="spawn N processes (set to 1 for no paralleization)")
-  parser.add_argument("-s", "--scanner", metavar='SCANNER', help="use SCANNER for tokenizing")
-  parser.add_argument("--buckets", type=int, metavar='N', help="distribute features into N buckets", default=NUM_BUCKETS)
-  parser.add_argument("--min_order", type=int, help="lowest n-gram order to use")
-  parser.add_argument("--max_order", type=int, help="highest n-gram order to use")
-  parser.add_argument("--word", action='store_true', default=False, help="use 'word' tokenization (currently str.split)")
-  parser.add_argument("--wordn", action='store_true', default=False, help="use 'word' n-gram tokenization")
-  parser.add_argument("--chunksize", type=int, help="max chunk size (number of files to tokenize at a time - smaller should reduce memory use)", default=CHUNKSIZE)
-  parser.add_argument("--term_freq", action='store_true', help="count term frequency (default is document frequency)")
-  parser.add_argument("-t", "--temp", metavar='TEMP_DIR', help="store buckets in TEMP_DIR instead of in MODEL_DIR/buckets")
-  parser.add_argument("-o", "--output", help="write list of output buckets to OUTPUT")
-  parser.add_argument("--line", action="store_true", help="treat each line in a file as a document")
-  parser.add_argument("model", metavar='MODEL_DIR', help="read index and produce output in MODEL_DIR")
+  parser.add_argument("-j", "--jobs",
+                      type=int, metavar='N', help="spawn N processes (set to 1 for no paralleization)")
+  parser.add_argument("-s", "--scanner",
+                      metavar='SCANNER', help="use SCANNER for tokenizing")
+  parser.add_argument("--buckets",
+                      type=int, metavar='N', help="distribute features into N buckets", default=NUM_BUCKETS)
+  parser.add_argument("--min_order",
+                      type=int, help="lowest n-gram order to use")
+  parser.add_argument("--max_order",
+                      type=int, help="highest n-gram order to use")
+  parser.add_argument("--word",
+                      action='store_true', default=False, help="use 'word' tokenization (currently str.split)")
+  parser.add_argument("--wordn",
+                      action='store_true', default=False, help="use 'word' n-gram tokenization")
+  parser.add_argument("--chunksize",
+                      type=int,
+                      help="max chunk size (number of files to tokenize at a time - smaller should reduce memory use)",
+                      default=CHUNKSIZE)
+  parser.add_argument("--term_freq",
+                      action='store_true', help="count term frequency (default is document frequency)")
+  parser.add_argument("-t", "--temp",
+                      metavar='TEMP_DIR', help="store buckets in TEMP_DIR instead of in MODEL_DIR/buckets")
+  parser.add_argument("-o", "--output",
+                      help="write list of output buckets to OUTPUT")
+  parser.add_argument("--line",
+                      action="store_true", help="treat each line in a file as a document")
+  parser.add_argument("model",
+                      metavar='MODEL_DIR', help="read index and produce output in MODEL_DIR")
 
   group = parser.add_argument_group('sampling')
-  group.add_argument("--sample_size", type=int, help="size of sample for sampling-based tokenization", default=140)
-  group.add_argument("--sample_count", type=int, help="number of samples for sampling-based tokenization", default=None)
+  group.add_argument("--sample_size",
+                     type=int, help="size of sample for sampling-based tokenization", default=140)
+  group.add_argument("--sample_count",
+                     type=int, help="number of samples for sampling-based tokenization", default=None)
   
   args = parser.parse_args()
 
@@ -331,7 +347,7 @@ if __name__ == "__main__":
   else:
     min_order = args.min_order if args.min_order else MIN_NGRAM_ORDER
     max_order = args.max_order if args.max_order else MAX_NGRAM_ORDER
-    tokenizer = NGramTokenizer(min_order,max_order)
+    tokenizer = NGramTokenizer(min_order, max_order)
     print("using n-gram tokenizer: min_order({}) max_order({})".format(min_order, max_order))
   if args.term_freq:
     print("counting term frequency")
