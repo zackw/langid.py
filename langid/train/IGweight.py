@@ -34,15 +34,21 @@ authors and should not be interpreted as representing official policies, either 
 or implied, of the copyright holder.
 """
 
-import os, sys, argparse 
+import os
+# import sys
+import argparse
 import csv
 import numpy
-import multiprocessing as mp
-from itertools import tee, imap, islice
+# import multiprocessing as mp
+# from itertools import tee, imap, islice
 from collections import defaultdict
-from contextlib import closing
+# from contextlib import closing
 
-from common import unmarshal_iter, MapPool, Enumerator, write_weights, read_features 
+from .common import unmarshal_iter
+from .common import MapPool
+from .common import Enumerator
+from .common import write_weights
+from .common import read_features
 
 def entropy(v, axis=0):
   """

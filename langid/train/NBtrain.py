@@ -36,19 +36,31 @@ or implied, of the copyright holder.
 MAX_CHUNK_SIZE = 100 # maximum number of files to tokenize at once
 NUM_BUCKETS = 64 # number of buckets to use in k-v pair generation
 
-import base64, bz2, cPickle
-import os, sys, argparse, csv
+import base64
+import bz2
+import cPickle
+import os
+import argparse
+import csv
 import array
 import numpy as np
 import tempfile
 import marshal
-import atexit, shutil
+import atexit
+import shutil
 import multiprocessing as mp
 import gzip
-from collections import deque, defaultdict
-from contextlib import closing
+from collections import defaultdict
+# from contextlib import closing
 
-from common import chunk, unmarshal_iter, read_features, index, MapPool
+from .common import chunk
+# from .common import index
+from .common import MapPool
+# from .common import read_features
+from .common import unmarshal_iter
+
+
+
 
 def state_trace(text):
   """

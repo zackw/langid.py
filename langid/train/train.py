@@ -42,19 +42,29 @@ CHUNKSIZE = 50 # maximum size of chunk (number of files tokenized - less = less 
 FEATURES_PER_LANG = 300 # number of features to select for each language
 
 import argparse
-import os, csv
+import os
+import csv
 import numpy
-import base64, bz2, cPickle
+import base64
+import bz2
+import cPickle
 import shutil
 
-from common import makedir, write_weights, write_features, read_weights, read_features
-from index import CorpusIndexer
-from tokenize import build_index, NGramTokenizer
-from DFfeatureselect import tally, ngram_select
-from IGweight import compute_IG
-from LDfeatureselect import select_LD_features
-from scanner import build_scanner, Scanner
-from NBtrain import learn_nb_params
+from .common import makedir
+from .common import write_weights
+from .common import write_features
+# from .common import read_weights
+from .common import read_features
+from .index import CorpusIndexer
+from .tokenize import build_index
+from .tokenize import NGramTokenizer
+from .DFfeatureselect import tally
+from .DFfeatureselect import ngram_select
+from .IGweight import compute_IG
+from .LDfeatureselect import select_LD_features
+from .scanner import build_scanner
+from .scanner import Scanner
+from .NBtrain import learn_nb_params
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()

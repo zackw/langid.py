@@ -36,10 +36,12 @@ or implied, of the copyright holder.
 """
 
 import cPickle
-import os, sys, argparse 
+import os
+# import sys
+import argparse
 import array
 from collections import deque, defaultdict
-from common import read_features
+from .common import read_features
 
 class Scanner(object):
   alphabet = map(chr, range(1<<8))

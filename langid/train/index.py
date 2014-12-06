@@ -61,14 +61,17 @@ or implied, of the copyright holder.
 TRAIN_PROP = 1.0 # probability than any given document is selected
 MIN_DOMAIN = 1 # minimum number of domains a language must be present in to be included
 
-import os, sys, argparse
+import os
+# import sys
+argparse
 import csv
 import random
 import numpy
-from itertools import tee, imap, islice
+# from itertools import tee, imap, islice
 from collections import defaultdict
 
-from common import Enumerator, makedir
+from .common import Enumerator
+from .common import makedir
 
 class CorpusIndexer(object):
   """
