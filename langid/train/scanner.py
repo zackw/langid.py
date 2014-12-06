@@ -35,7 +35,7 @@ authors and should not be interpreted as representing official policies, either 
 or implied, of the copyright holder.
 """
 
-import cPickle
+import pickle
 import os
 # import sys
 import argparse
@@ -44,7 +44,7 @@ from collections import deque, defaultdict
 from .common import read_features
 
 class Scanner(object):
-  alphabet = map(chr, range(1<<8))
+  alphabet = list(map(chr, list(range(1<<8))))
   """
   Implementation of Aho-Corasick string matching.
   This class should be instantiated with a set of keywords, which
@@ -53,7 +53,7 @@ class Scanner(object):
   @classmethod
   def from_file(cls, path):
     with open(path) as f:
-      tk_nextmove, tk_output, feats = cPickle.load(f)
+      tk_nextmove, tk_output, feats = pickle.load(f)
     if isinstance(feats, dict):
       # The old scanner format had two identical dictionaries as the last
       # two items in the tuple. This format can still be used by langid.py,
@@ -63,7 +63,7 @@ class Scanner(object):
     # tk_output is a mapping from state to a list of feature indices.
     # because of the way the scanner class is written, it needs a mapping
     # from state to the feature itself. We rebuild this here.
-    tk_output_f = dict( (k,[feats[i] for i in v]) for k,v in tk_output.iteritems() )
+    tk_output_f = dict( (k,[feats[i] for i in v]) for k,v in tk_output.items() )
     scanner = cls.__new__(cls)
     scanner.__setstate__((tk_nextmove, tk_output_f))
     return scanner
@@ -145,7 +145,7 @@ class Scanner(object):
       def nextstate_iter():
         # State count starts at 0, so the number of states is the number of i
         # the last state (newstate) + 1
-        for state in xrange(newstate+1):
+        for state in range(newstate+1):
           for letter in self.alphabet:
             yield self.nextmove[(state, letter)]
       return array.array(typecode, nextstate_iter())
@@ -192,14 +192,14 @@ def build_scanner(features):
   feat_index = index(features)
 
   # Build the actual scanner
-  print "building scanner"
+  print("building scanner")
   scanner = Scanner(features)
   tk_nextmove, raw_output = scanner.__getstate__()
 
   # tk_output is the output function of the scanner. It should generate indices into
   # the feature space directly, as this saves a lookup
   tk_output = {}
-  for k,v in raw_output.items():
+  for k,v in list(raw_output.items()):
     tk_output[k] = tuple(feat_index[f] for f in v)
   return tk_nextmove, tk_output
 
@@ -230,13 +230,13 @@ if __name__ == "__main__":
     output_path = input_path + '.scanner'
 
   # display paths
-  print "input path:", input_path
-  print "output path:", output_path
+  print("input path:", input_path)
+  print("output path:", output_path)
 
   nb_features = read_features(input_path)
   tk_nextmove, tk_output = build_scanner(nb_features)
   scanner = tk_nextmove, tk_output, nb_features
 
   with open(output_path, 'w') as f:
-    cPickle.dump(scanner, f)
-  print "wrote scanner to {0}".format(output_path)
+    pickle.dump(scanner, f)
+  print("wrote scanner to {0}".format(output_path))

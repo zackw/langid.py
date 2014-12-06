@@ -105,7 +105,7 @@ class CorpusIndexer(object):
           candidates.append(os.path.join(dirpath, docname))
     else:
       # root supplied was a file, interpet as list of paths
-      candidates = map(str.strip, open(root))
+      candidates = list(map(str.strip, open(root)))
 
     if line_level:
       self.index_line(candidates)
@@ -180,7 +180,7 @@ class CorpusIndexer(object):
     # Work out which languages to reject as they are not present in at least 
     # the required number of domains
     lang_domain_count = defaultdict(int)
-    for langs in self.coverage_index.values():
+    for langs in list(self.coverage_index.values()):
       for lang in langs:
         lang_domain_count[lang] += 1
     reject_langs = set( l for l in lang_domain_count if lang_domain_count[l] < min_domain)
@@ -192,7 +192,7 @@ class CorpusIndexer(object):
     
       new_lang_index = defaultdict(Enumerator())
       lm = dict()
-      for k,v in self.lang_index.items():
+      for k,v in list(self.lang_index.items()):
         if v not in reject_ids:
           new_id = new_lang_index[k]
           lm[v] = new_id
@@ -253,14 +253,14 @@ if __name__ == "__main__":
   index_path = os.path.join(model_dir, 'paths')
 
   # display paths
-  print "corpus path:", args.corpus
-  print "model path:", model_dir
-  print "writing langs to:", langs_path
-  print "writing domains to:", domains_path
-  print "writing index to:", index_path
+  print("corpus path:", args.corpus)
+  print("model path:", model_dir)
+  print("writing langs to:", langs_path)
+  print("writing domains to:", domains_path)
+  print("writing index to:", index_path)
 
   if args.line:
-    print "indexing documents at the line level"
+    print("indexing documents at the line level")
 
   indexer = CorpusIndexer(args.corpus, min_domain=args.min_domain, proportion=args.proportion,
                           langs = args.lang, domains = args.domain, line_level=args.line)
@@ -268,27 +268,27 @@ if __name__ == "__main__":
   # Compute mappings between files, languages and domains
   lang_dist = indexer.dist_lang
   lang_index = indexer.lang_index
-  lang_info = ' '.join(("{0}({1})".format(k, lang_dist[v]) for k,v in lang_index.items()))
-  print "langs({0}): {1}".format(len(lang_dist), lang_info)
+  lang_info = ' '.join(("{0}({1})".format(k, lang_dist[v]) for k,v in list(lang_index.items())))
+  print("langs({0}): {1}".format(len(lang_dist), lang_info))
 
   domain_dist = indexer.dist_domain
   domain_index = indexer.domain_index
-  domain_info = ' '.join(("{0}({1})".format(k, domain_dist[v]) for k,v in domain_index.items()))
-  print "domains({0}): {1}".format(len(domain_dist), domain_info)
+  domain_info = ' '.join(("{0}({1})".format(k, domain_dist[v]) for k,v in list(domain_index.items())))
+  print("domains({0}): {1}".format(len(domain_dist), domain_info))
 
-  print "identified {0} documents".format(len(indexer.items))
+  print("identified {0} documents".format(len(indexer.items)))
 
   # output the language index
   with open(langs_path,'w') as f:
     writer = csv.writer(f)
     writer.writerows((l, lang_dist[lang_index[l]]) 
-        for l in sorted(lang_index.keys(), key=lang_index.get))
+        for l in sorted(list(lang_index.keys()), key=lang_index.get))
 
   # output the domain index
   with open(domains_path,'w') as f:
     writer = csv.writer(f)
     writer.writerows((d, domain_dist[domain_index[d]]) 
-        for d in sorted(domain_index.keys(), key=domain_index.get))
+        for d in sorted(list(domain_index.keys()), key=domain_index.get))
 
   # output items found
   with open(index_path,'w') as f:

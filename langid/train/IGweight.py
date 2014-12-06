@@ -117,10 +117,10 @@ def pass_IG(buckets):
 
   cm_pos = numpy.zeros((num_term, num_event), dtype='int')
 
-  for term,term_id in term_index.iteritems():
+  for term,term_id in term_index.items():
     # update event matrix
     freq = term_freq[term]
-    for event_id, count in freq.iteritems():
+    for event_id, count in freq.items():
       cm_pos[term_id, event_id] = count
   cm_neg = __dist - cm_pos
   cm = numpy.dstack((cm_neg, cm_pos))
@@ -140,7 +140,7 @@ def pass_IG(buckets):
     # binarized event space
     # Compute IG binarized with respect to each event
     ig = list()
-    for event_id in xrange(num_event):
+    for event_id in range(num_event):
       num_doc = __dist.sum()
       prior = numpy.array((num_doc - __dist[event_id], __dist[event_id]), dtype=float) / num_doc
 
@@ -172,7 +172,7 @@ def compute_IG(bucketlist, features, dist, binarize, suffix, job_count=None):
     for i, (t, w) in enumerate(pass_IG_out):
       weights.append(w)
       terms.extend(t)
-      print "processed chunk (%d/%d) [%d terms]" % (i+1, num_chunk, len(t))
+      print("processed chunk (%d/%d) [%d terms]" % (i+1, num_chunk, len(t)))
 
   if binarize:
     weights = numpy.hstack(weights).transpose()
@@ -180,7 +180,7 @@ def compute_IG(bucketlist, features, dist, binarize, suffix, job_count=None):
     weights = numpy.concatenate(weights)
   terms = ["".join(t) for t in terms]
 
-  return zip(terms, weights)
+  return list(zip(terms, weights))
 
 def read_dist(path):
   """
@@ -236,16 +236,16 @@ if __name__ == "__main__":
     weights_path = os.path.join(args.model, 'IGweights' + suffix + ('.bin' if args.binarize else ''))
 
   # display paths
-  print "model path:", args.model 
-  print "buckets path:", bucketlist_paths
-  print "features path:", feature_path
-  print "weights path:", weights_path
-  print "index path:", index_path
-  print "suffix:", suffix
+  print("model path:", args.model) 
+  print("buckets path:", bucketlist_paths)
+  print("features path:", feature_path)
+  print("weights path:", weights_path)
+  print("index path:", index_path)
+  print("suffix:", suffix)
 
-  print "computing information gain"
+  print("computing information gain")
   # Compile buckets together
-  bucketlist = zip(*(map(str.strip, open(p)) for p in bucketlist_paths))
+  bucketlist = list(zip(*(list(map(str.strip, open(p))) for p in bucketlist_paths)))
 
   # Check that each bucketlist has the same number of buckets
   assert len(set(map(len,bucketlist))) == 1, "incompatible bucketlists!"

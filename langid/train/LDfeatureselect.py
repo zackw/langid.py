@@ -51,13 +51,14 @@ from collections import defaultdict
 from .common import read_weights
 from .common import Enumerator
 from .common import write_features
+from functools import reduce
 
 def select_LD_features(ig_lang, ig_domain, feats_per_lang, ignore_domain=False):
   """
   @param ignore_domain boolean to indicate whether to use domain weights
   """
   assert (ig_domain is None) or (len(ig_lang) == len(ig_domain))
-  num_lang = len(ig_lang.values()[0])
+  num_lang = len(list(ig_lang.values())[0])
   num_term = len(ig_lang)
 
   term_index = defaultdict(Enumerator())
@@ -95,10 +96,10 @@ if __name__ == "__main__":
   feature_path = args.output if args.output else os.path.join(args.model, 'LDfeats')
 
   # display paths
-  print "model path:", args.model
-  print "lang weights path:", lang_w_path
-  print "domain weights path:", domain_w_path
-  print "feature output path:", feature_path
+  print("model path:", args.model)
+  print("lang weights path:", lang_w_path)
+  print("domain weights path:", domain_w_path)
+  print("feature output path:", feature_path)
 
   lang_w = read_weights(lang_w_path)
   domain_w = read_weights(domain_w_path) if not args.no_domain_ig else None
@@ -108,12 +109,12 @@ if __name__ == "__main__":
     with open(feature_path + '.perlang', 'w') as f:
       writer = csv.writer(f)
       for i in range(len(features_per_lang)):
-        writer.writerow(map(repr,features_per_lang[i]))
+        writer.writerow(list(map(repr,features_per_lang[i])))
       
 
-  final_feature_set = reduce(set.union, map(set, features_per_lang.values()))
-  print 'selected %d features' % len(final_feature_set)
+  final_feature_set = reduce(set.union, list(map(set, list(features_per_lang.values()))))
+  print('selected %d features' % len(final_feature_set))
 
   write_features(sorted(final_feature_set), feature_path)
-  print 'wrote features to "%s"' % feature_path 
+  print('wrote features to "%s"' % feature_path) 
 

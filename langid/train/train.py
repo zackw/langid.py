@@ -47,7 +47,7 @@ import csv
 import numpy
 import base64
 import bz2
-import cPickle
+import pickle
 import shutil
 
 from .common import makedir
@@ -65,6 +65,7 @@ from .LDfeatureselect import select_LD_features
 from .scanner import build_scanner
 from .scanner import Scanner
 from .NBtrain import learn_nb_params
+from functools import reduce
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
@@ -112,8 +113,8 @@ if __name__ == "__main__":
   makedir(model_dir)
 
   # display paths
-  print "corpus path:", args.corpus
-  print "model path:", model_dir
+  print("corpus path:", args.corpus)
+  print("model path:", model_dir)
 
   indexer = CorpusIndexer(args.corpus, min_domain=args.min_domain, proportion=args.proportion,
                           langs = args.lang, domains = args.domain, line_level=args.line)
@@ -121,18 +122,18 @@ if __name__ == "__main__":
   # Compute mappings between files, languages and domains
   lang_dist = indexer.dist_lang
   lang_index = indexer.lang_index
-  lang_info = ' '.join(("{0}({1})".format(k, lang_dist[v]) for k,v in lang_index.items()))
-  print "langs({0}): {1}".format(len(lang_dist), lang_info)
+  lang_info = ' '.join(("{0}({1})".format(k, lang_dist[v]) for k,v in list(lang_index.items())))
+  print("langs({0}): {1}".format(len(lang_dist), lang_info))
 
   domain_dist = indexer.dist_domain
   domain_index = indexer.domain_index
-  domain_info = ' '.join(("{0}({1})".format(k, domain_dist[v]) for k,v in domain_index.items()))
-  print "domains({0}): {1}".format(len(domain_dist), domain_info)
+  domain_info = ' '.join(("{0}({1})".format(k, domain_dist[v]) for k,v in list(domain_index.items())))
+  print("domains({0}): {1}".format(len(domain_dist), domain_info))
 
-  print "identified {0} documents".format(len(indexer.items))
+  print("identified {0} documents".format(len(indexer.items)))
 
   if args.line:
-  	print "treating each LINE as a document"
+  	print("treating each LINE as a document")
 
   items = sorted(set( (d,l,p) for (d,l,n,p) in indexer.items ))
   if args.debug:
@@ -173,18 +174,18 @@ if __name__ == "__main__":
 
     # Tokenize
     DFfeats = None
-    print "will tokenize %d documents" % len(items)
+    print("will tokenize %d documents" % len(items))
     # TODO: Custom tokenizer if doing custom first-pass features
     if args.df_feats:
-      print "reading custom features from:", args.df_feats
+      print("reading custom features from:", args.df_feats)
       DFfeats = read_features(args.df_feats)
-      print "building tokenizer for custom list of {0} features".format(len(DFfeats))
+      print("building tokenizer for custom list of {0} features".format(len(DFfeats)))
       tk = Scanner(DFfeats)
     elif args.word:
-      print "using word tokenizer"
+      print("using word tokenizer")
       tk = str.split
     else:
-      print "using byte NGram tokenizer, max_order: {0}".format(args.max_order)
+      print("using byte NGram tokenizer, max_order: {0}".format(args.max_order))
       tk = NGramTokenizer(1, args.max_order)
     
     # First-pass tokenization, used to determine DF of features
@@ -207,7 +208,7 @@ if __name__ == "__main__":
       if args.debug:
         doc_count_path = os.path.join(model_dir, 'DF_all')
         write_weights(doc_count, doc_count_path)
-        print "wrote DF counts for all features to:", doc_count_path
+        print("wrote DF counts for all features to:", doc_count_path)
 
     if DFfeats is None:
       # Choose the first-stage features
@@ -216,7 +217,7 @@ if __name__ == "__main__":
     if args.debug:
       feature_path = os.path.join(model_dir, 'DFfeats')
       write_features(DFfeats, feature_path)
-      print 'wrote features to "%s"' % feature_path 
+      print('wrote features to "%s"' % feature_path) 
 
     # Dispose of the first-pass tokenize output as it is no longer 
     # needed.
@@ -237,7 +238,7 @@ if __name__ == "__main__":
     domain_dist_vec = numpy.array([ domain_dist[domain_index[d]]
             for d in sorted(domain_index, key=domain_index.get)], dtype=int)
     lang_dist_vec = numpy.array([ lang_dist[lang_index[l]]
-            for l in sorted(lang_index.keys(), key=lang_index.get)], dtype=int)
+            for l in sorted(list(lang_index.keys()), key=lang_index.get)], dtype=int)
 
     # Compute IG
     ig_params = [
@@ -248,7 +249,7 @@ if __name__ == "__main__":
 
     ig_vals = {}
     for label, dist, suffix, binarize in ig_params:
-      print "Computing information gain for {0}".format(label)
+      print("Computing information gain for {0}".format(label))
       ig = compute_IG(b_dirs, DFfeats, dist, binarize, suffix, args.jobs)
       if args.debug:
         weights_path = os.path.join(model_dir, 'IGweights' + suffix + ('.bin' if binarize else ''))
@@ -257,27 +258,27 @@ if __name__ == "__main__":
 
     # Select features according to the LD criteria
     features_per_lang = select_LD_features(ig_vals['lang'], ig_vals.get('domain'), args.feats_per_lang, ignore_domain = args.no_domain_ig)
-    LDfeats = reduce(set.union, map(set, features_per_lang.values()))
-    print 'selected %d features' % len(LDfeats)
+    LDfeats = reduce(set.union, list(map(set, list(features_per_lang.values()))))
+    print('selected %d features' % len(LDfeats))
 
     if args.debug:
       feature_path = os.path.join(model_dir, 'LDfeats')
       write_features(sorted(LDfeats), feature_path)
-      print 'wrote LD features to "%s"' % feature_path 
+      print('wrote LD features to "%s"' % feature_path) 
 
       with open(feature_path + '.perlang', 'w') as f:
         writer = csv.writer(f)
         for i in range(len(features_per_lang)):
-          writer.writerow(map(repr,features_per_lang[i]))
-      print 'wrote LD.perlang features to "%s"' % feature_path + '.perlang'
+          writer.writerow(list(map(repr,features_per_lang[i])))
+      print('wrote LD.perlang features to "%s"' % feature_path + '.perlang')
 
   # Compile a scanner for the LDfeats
   tk_nextmove, tk_output = build_scanner(LDfeats)
   if args.debug:
     scanner_path = feature_path + '.scanner'
     with open(scanner_path, 'w') as f:
-      cPickle.dump((tk_nextmove, tk_output, LDfeats), f)
-    print "wrote scanner to {0}".format(scanner_path)
+      pickle.dump((tk_nextmove, tk_output, LDfeats), f)
+    print("wrote scanner to {0}".format(scanner_path))
 
   # Assemble the NB model
   langs = sorted(lang_index, key=lang_index.get)
@@ -290,10 +291,10 @@ if __name__ == "__main__":
   # output the model
   output_path = os.path.join(model_dir, 'model')
   model = nb_ptc, nb_pc, nb_classes, tk_nextmove, tk_output
-  string = base64.b64encode(bz2.compress(cPickle.dumps(model)))
+  string = base64.b64encode(bz2.compress(pickle.dumps(model)))
   with open(output_path, 'w') as f:
     f.write(string)
-  print "wrote model to %s (%d bytes)" % (output_path, len(string))
+  print("wrote model to %s (%d bytes)" % (output_path, len(string)))
 
   # remove buckets if debug is off. We don't generate buckets if ldfeats is supplied.
   if not args.debug and not args.ld_feats:

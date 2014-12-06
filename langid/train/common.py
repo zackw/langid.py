@@ -95,7 +95,7 @@ def read_features(path):
   @param path path to read from
   """
   with open(path) as f:
-    return map(eval, f)
+    return list(map(eval, f))
 
 def write_features(features, path):
   """
@@ -106,7 +106,7 @@ def write_features(features, path):
   """
   with open(path,'w') as f:
     for feat in features:
-      print >>f, repr(feat)
+      print(repr(feat), file=f)
 
 
 def index(seq):
@@ -120,7 +120,7 @@ def index(seq):
 
       
 
-from itertools import imap
+
 from contextlib import contextmanager, closing
 import multiprocessing as mp
 
