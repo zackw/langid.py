@@ -100,20 +100,20 @@ class Scanner(object):
     # Algorithm 3
     queue = deque()
     for a in self.alphabet:
-      if goto[(0,a)] != 0:
-        s = goto[(0,a)]
+      if goto[(0, a)] != 0:
+        s = goto[(0, a)]
         queue.append(s)
         fail[s] = 0
     while queue:
       r = queue.popleft()
       for a in self.alphabet:
         if (r,a) in goto:
-          s = goto[(r,a)]
+          s = goto[(r, a)]
           queue.append(s)
           state = fail[r]
-          while (state,a) not in goto:
+          while (state, a) not in goto:
             state = fail[state]
-          fail[s] = goto[(state,a)]
+          fail[s] = goto[(state, a)]
           #print "f(%d) -> %d" % (s, goto[(state,a)]), output[fail[s]]
           if output[fail[s]]:
             output[s].update(output[fail[s]])
@@ -130,9 +130,9 @@ class Scanner(object):
         if (r,a) in goto:
           s = goto[(r,a)]
           queue.append(s)
-          self.nextmove[(r,a)] = s
+          self.nextmove[(r, a)] = s
         else:
-          self.nextmove[(r,a)] = self.nextmove[(fail[r],a)]
+          self.nextmove[(r, a)] = self.nextmove[(fail[r], a)]
 
     # convert the output to tuples, as tuple iteration is faster
     # than set iteration
@@ -178,6 +178,7 @@ class Scanner(object):
       for key in self.output.get(state, []):
         yield key
 
+
 def build_scanner(features):
   """
   In difference to the Scanner class, this function unwraps a layer of indirection in
@@ -215,8 +216,10 @@ def index(seq):
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
-  parser.add_argument("input", metavar="INPUT", help="build a scanner for INPUT. If input is a directory, read INPUT/LDfeats")
-  parser.add_argument("-o","--output", help="output scanner to OUTFILE", metavar="OUTFILE")
+  parser.add_argument("input",
+                      metavar="INPUT", help="build a scanner for INPUT. If input is a directory, read INPUT/LDfeats")
+  parser.add_argument("-o", "--output",
+                      help="output scanner to OUTFILE", metavar="OUTFILE")
   args = parser.parse_args()
 
   if os.path.isdir(args.input):

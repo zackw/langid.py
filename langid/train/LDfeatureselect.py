@@ -35,9 +35,9 @@ or implied, of the copyright holder.
 
 ######
 # Default values
-# Can be overriden with command-line options
+# Can be overridden with command-line options
 ######
-FEATURES_PER_LANG = 300 # number of features to select for each language
+FEATURES_PER_LANG = 300  # number of features to select for each language
 
 import os
 # import sys
@@ -84,11 +84,16 @@ def select_LD_features(ig_lang, ig_domain, feats_per_lang, ignore_domain=False):
     
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
-  parser.add_argument("-o","--output", metavar="OUTPUT_PATH", help = "write selected features to OUTPUT_PATH")
-  parser.add_argument("--feats_per_lang", type=int, metavar='N', help="select top N features for each language", default=FEATURES_PER_LANG)
-  parser.add_argument("--per_lang", action="store_true", default=False, help="produce a list of features selecter per-language")
-  parser.add_argument("--no_domain_ig", action="store_true", default=False, help="use only per-langugage IG in LD calculation")
-  parser.add_argument("model", metavar='MODEL_DIR', help="read index and produce output in MODEL_DIR")
+  parser.add_argument("-o", "--output",
+                      metavar="OUTPUT_PATH", help="write selected features to OUTPUT_PATH")
+  parser.add_argument("--feats_per_lang",
+                      type=int, metavar='N', help="select top N features for each language", default=FEATURES_PER_LANG)
+  parser.add_argument("--per_lang",
+                      action="store_true", default=False, help="produce a list of features selecter per-language")
+  parser.add_argument("--no_domain_ig",
+                      action="store_true", default=False, help="use only per-langugage IG in LD calculation")
+  parser.add_argument("model",
+                      metavar='MODEL_DIR', help="read index and produce output in MODEL_DIR")
   args = parser.parse_args()
 
   lang_w_path = os.path.join(args.model, 'IGweights.lang.bin')

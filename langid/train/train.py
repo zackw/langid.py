@@ -69,32 +69,55 @@ from functools import reduce
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
-  parser.add_argument("-p","--proportion", type=float, help="proportion of training data to use", default=TRAIN_PROP)
-  parser.add_argument("-m","--model", help="save output to MODEL_DIR", metavar="MODEL_DIR")
-  parser.add_argument("-j","--jobs", type=int, metavar='N', help="spawn N processes (set to 1 for no paralleization)")
-  parser.add_argument("-t", "--temp", metavar='TEMP_DIR', help="store buckets in TEMP_DIR instead of in MODEL_DIR/buckets")
-  parser.add_argument("-d","--domain", metavar="DOMAIN", action='append',
-      help="use DOMAIN - can be specified multiple times (uses all domains found if not specified)")
-  parser.add_argument("-l","--lang", metavar="LANG", action='append',
-      help="use LANG - can be specified multiple times (uses all langs found if not specified)")
-  parser.add_argument("--min_domain", type=int, help="minimum number of domains a language must be present in", default=MIN_DOMAIN)
-  parser.add_argument("--buckets", type=int, metavar='N', help="distribute features into N buckets", default=NUM_BUCKETS)
-  parser.add_argument("--max_order", type=int, help="highest n-gram order to use", default=MAX_NGRAM_ORDER)
-  parser.add_argument("--chunksize", type=int, help="max chunk size (number of files to tokenize at a time - smaller should reduce memory use)", default=CHUNKSIZE)
-  parser.add_argument("--df_tokens", type=int, help="number of tokens to consider for each n-gram order", default=TOP_DOC_FREQ)
-  parser.add_argument("--word", action='store_true', default=False, help="use 'word' tokenization (currently str.split)")
-  parser.add_argument("--df_feats", metavar="FEATS", help="Instead of DF feature selection, use a list of features from FEATS")
-  parser.add_argument("--ld_feats", metavar="FEATS", help="Instead of LD feature selection, use a list of features from FEATS")
-  parser.add_argument("--feats_per_lang", type=int, metavar='N', help="select top N features for each language", default=FEATURES_PER_LANG)
-  parser.add_argument("--no_domain_ig", action="store_true", default=False, help="use only per-langugage IG in LD calculation")
-  parser.add_argument("--debug", action="store_true", default=False, help="produce debug output (all intermediates)")
-  parser.add_argument("--line", action="store_true", help="treat each line in a file as a document")
+  parser.add_argument("-p", "--proportion",
+                      type=float, help="proportion of training data to use", default=TRAIN_PROP)
+  parser.add_argument("-m", "--model",
+                      help="save output to MODEL_DIR", metavar="MODEL_DIR")
+  parser.add_argument("-j", "--jobs",
+                      type=int, metavar='N', help="spawn N processes (set to 1 for no paralleization)")
+  parser.add_argument("-t",  "--temp",
+                      metavar='TEMP_DIR', help="store buckets in TEMP_DIR instead of in MODEL_DIR/buckets")
+  parser.add_argument("-d", "--domain",
+                      metavar="DOMAIN", action='append',
+                      help="use DOMAIN - can be specified multiple times (uses all domains found if not specified)")
+  parser.add_argument("-l", "--lang",
+                      metavar="LANG", action='append',
+                      help="use LANG - can be specified multiple times (uses all langs found if not specified)")
+  parser.add_argument("--min_domain",
+                      type=int, help="minimum number of domains a language must be present in", default=MIN_DOMAIN)
+  parser.add_argument("--buckets",
+                      type=int, metavar='N', help="distribute features into N buckets", default=NUM_BUCKETS)
+  parser.add_argument("--max_order",
+                      type=int, help="highest n-gram order to use", default=MAX_NGRAM_ORDER)
+  parser.add_argument("--chunksize",
+                      type=int,
+                      help="max chunk size (number of files to tokenize at a time - smaller should reduce memory use)",
+                      default=CHUNKSIZE)
+  parser.add_argument("--df_tokens",
+                      type=int, help="number of tokens to consider for each n-gram order", default=TOP_DOC_FREQ)
+  parser.add_argument("--word",
+                      action='store_true', default=False, help="use 'word' tokenization (currently str.split)")
+  parser.add_argument("--df_feats",
+                      metavar="FEATS", help="Instead of DF feature selection, use a list of features from FEATS")
+  parser.add_argument("--ld_feats",
+                      metavar="FEATS", help="Instead of LD feature selection, use a list of features from FEATS")
+  parser.add_argument("--feats_per_lang",
+                      type=int, metavar='N', help="select top N features for each language", default=FEATURES_PER_LANG)
+  parser.add_argument("--no_domain_ig",
+                      action="store_true", default=False, help="use only per-langugage IG in LD calculation")
+  parser.add_argument("--debug",
+                      action="store_true", default=False, help="produce debug output (all intermediates)")
+  parser.add_argument("--line",
+                      action="store_true", help="treat each line in a file as a document")
 
   group = parser.add_argument_group('sampling')
-  group.add_argument("--sample_size", type=int, help="size of sample for sampling-based tokenization", default=140)
-  group.add_argument("--sample_count", type=int, help="number of samples for sampling-based tokenization", default=None)
+  group.add_argument("--sample_size",
+                     type=int, help="size of sample for sampling-based tokenization", default=140)
+  group.add_argument("--sample_count",
+                     type=int, help="number of samples for sampling-based tokenization", default=None)
 
-  parser.add_argument("corpus", help="read corpus from CORPUS_DIR", metavar="CORPUS_DIR")
+  parser.add_argument("corpus",
+                      help="read corpus from CORPUS_DIR", metavar="CORPUS_DIR")
 
   args = parser.parse_args()
 
@@ -135,26 +158,26 @@ if __name__ == "__main__":
   if args.line:
   	print("treating each LINE as a document")
 
-  items = sorted(set( (d,l,p) for (d,l,n,p) in indexer.items ))
+  items = sorted(set((d, l, p) for (d, l, n, p) in indexer.items))
   if args.debug:
     langs_path = os.path.join(model_dir, 'lang_index')
     domains_path = os.path.join(model_dir, 'domain_index')
     index_path = os.path.join(model_dir, 'paths')
 
     # output the language index
-    with open(langs_path,'w') as f:
+    with open(langs_path, 'w') as f:
       writer = csv.writer(f)
       writer.writerows((l, lang_dist[lang_index[l]]) 
           for l in sorted(lang_index, key=lang_index.get))
 
     # output the domain index
-    with open(domains_path,'w') as f:
+    with open(domains_path, 'w') as f:
       writer = csv.writer(f)
       writer.writerows((d, domain_dist[domain_index[d]]) 
           for d in sorted(domain_index, key=domain_index.get))
 
     # output items found
-    with open(index_path,'w') as f:
+    with open(index_path, 'w') as f:
       writer = csv.writer(f)
       writer.writerows(items)
 
@@ -241,11 +264,9 @@ if __name__ == "__main__":
             for l in sorted(list(lang_index.keys()), key=lang_index.get)], dtype=int)
 
     # Compute IG
-    ig_params = [
-      ('lang', lang_dist_vec, '.lang', True),
-    ]
+    ig_params = [('lang', lang_dist_vec, '.lang', True), ]
     if not args.no_domain_ig:
-      ig_params.append( ('domain', domain_dist_vec, '.domain', False) )
+      ig_params.append(('domain', domain_dist_vec, '.domain', False))
 
     ig_vals = {}
     for label, dist, suffix, binarize in ig_params:
@@ -257,7 +278,9 @@ if __name__ == "__main__":
       ig_vals[label] = dict((row[0], numpy.array(row[1].flat)) for row in ig)
 
     # Select features according to the LD criteria
-    features_per_lang = select_LD_features(ig_vals['lang'], ig_vals.get('domain'), args.feats_per_lang, ignore_domain = args.no_domain_ig)
+    features_per_lang = select_LD_features(ig_vals['lang'],
+                                           ig_vals.get('domain'),
+                                           args.feats_per_lang, ignore_domain=args.no_domain_ig)
     LDfeats = reduce(set.union, list(map(set, list(features_per_lang.values()))))
     print('selected %d features' % len(LDfeats))
 
@@ -286,7 +309,7 @@ if __name__ == "__main__":
   nb_classes = langs
   nb_dir = os.path.join(buckets_dir, 'NBtrain')
   makedir(nb_dir)
-  nb_pc, nb_ptc = learn_nb_params([(int(l),p) for _, l, p in items], len(langs), tk_nextmove, tk_output, nb_dir, args)
+  nb_pc, nb_ptc = learn_nb_params([(int(l), p) for _, l, p in items], len(langs), tk_nextmove, tk_output, nb_dir, args)
 
   # output the model
   output_path = os.path.join(model_dir, 'model')

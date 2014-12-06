@@ -33,8 +33,8 @@ The views and conclusions contained in the software and documentation are those 
 authors and should not be interpreted as representing official policies, either expressed
 or implied, of the copyright holder.
 """
-MAX_CHUNK_SIZE = 100 # maximum number of files to tokenize at once
-NUM_BUCKETS = 64 # number of buckets to use in k-v pair generation
+MAX_CHUNK_SIZE = 100  # maximum number of files to tokenize at once
+NUM_BUCKETS = 64  # number of buckets to use in k-v pair generation
 
 import base64
 import bz2
@@ -60,8 +60,6 @@ from .common import MapPool
 from .common import unmarshal_iter
 
 
-
-
 def state_trace(text):
   """
   Returns counts of how often each state was entered
@@ -84,6 +82,7 @@ def setup_pass_tokenize(nm_arr, output_states, tk_output, b_dirs, line_level):
   __tk_output = tk_output
   __b_dirs = b_dirs
   __line_level = line_level
+
 
 def pass_tokenize(arg):
   """
@@ -129,7 +128,7 @@ def pass_tokenize(arg):
   for doc_id, f_id in term_freq:
     bucket_index = hash(f_id) % bucket_count
     count = term_freq[doc_id, f_id]
-    item = ( f_id, chunk_id, doc_id, count )
+    item = (f_id, chunk_id, doc_id, count)
     __buckets[bucket_index].write(marshal.dumps(item))
 
   for f in __buckets:
@@ -137,11 +136,13 @@ def pass_tokenize(arg):
 
   return chunk_id, doc_count, len(term_freq), labels
 
+
 def setup_pass_ptc(cm, num_instances, chunk_offsets):
   global __cm, __num_instances, __chunk_offsets
   __cm = cm
   __num_instances = num_instances
   __chunk_offsets = chunk_offsets
+
 
 def pass_ptc(b_dir):
   """
@@ -152,7 +153,7 @@ def pass_ptc(b_dir):
   """
   global __cm, __num_instances, __chunk_offsets
 
-  terms = defaultdict(lambda : np.zeros((__num_instances,), dtype='int'))
+  terms = defaultdict(lambda: np.zeros((__num_instances, ), dtype='int'))
 
   read_count = 0
   for path in os.listdir(b_dir):
@@ -169,6 +170,7 @@ def pass_ptc(b_dir):
   prod = np.dot(fm, __cm)
 
   return read_count, f_ids, prod
+
 
 def learn_nb_params(items, num_langs, tk_nextmove, tk_output, temp_path, args):
   """
@@ -189,8 +191,8 @@ def learn_nb_params(items, num_langs, tk_nextmove, tk_output, temp_path, args):
   # Ensure chunksize of at least 1, but not exceeding specified chunksize
   chunksize = max(1, min(len(items) / tasks, args.chunksize))
 
-  outdir = tempfile.mkdtemp(prefix="NBtrain-",suffix='-buckets', dir=temp_path)
-  b_dirs = [ os.path.join(outdir,"bucket{0}".format(i)) for i in range(args.buckets) ]
+  outdir = tempfile.mkdtemp(prefix="NBtrain-", suffix='-buckets', dir=temp_path)
+  b_dirs = [os.path.join(outdir, "bucket{0}".format(i)) for i in range(args.buckets)]
 
   for d in b_dirs:
     os.mkdir(d)
@@ -237,7 +239,7 @@ def learn_nb_params(items, num_langs, tk_nextmove, tk_output, temp_path, args):
     pass_ptc_out = f(pass_ptc, b_dirs)
 
     def pass_ptc_progress():
-      for i,v in enumerate(pass_ptc_out):
+      for i, v in enumerate(pass_ptc_out):
         yield v
         print("processed chunk ({0}/{1})".format(i+1, len(b_dirs)))
 
@@ -245,7 +247,7 @@ def learn_nb_params(items, num_langs, tk_nextmove, tk_output, temp_path, args):
     read_count = sum(reads)
     print("read a total of %d keys (%d short)" % (read_count, write_count - read_count))
 
-  num_features = max( i for v in list(tk_output.values()) for i in v) + 1
+  num_features = max(i for v in list(tk_output.values()) for i in v) + 1
   prod = np.zeros((num_features, cm.shape[1]), dtype=int)
   prod[np.concatenate(ids)] = np.vstack(prods)
 
@@ -261,6 +263,7 @@ def learn_nb_params(items, num_langs, tk_nextmove, tk_output, temp_path, args):
 
   return nb_pc, nb_ptc
 
+
 @atexit.register
 def cleanup():
   global outdir 
@@ -271,15 +274,23 @@ def cleanup():
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
-  parser.add_argument("-j","--jobs", type=int, metavar='N', help="spawn N processes (set to 1 for no paralleization)")
-  parser.add_argument("-t", "--temp", metavar='TEMP_DIR', help="store buckets in TEMP_DIR instead of in MODEL_DIR/buckets")
-  parser.add_argument("-s", "--scanner", metavar='SCANNER', help="use SCANNER for feature counting")
-  parser.add_argument("-o", "--output", metavar='OUTPUT', help="output langid.py-compatible model to OUTPUT")
-  #parser.add_argument("-i","--index",metavar='INDEX',help="read list of training document paths from INDEX")
-  parser.add_argument("model", metavar='MODEL_DIR', help="read index and produce output in MODEL_DIR")
-  parser.add_argument("--chunksize", type=int, help='maximum chunk size (number of files)', default=MAX_CHUNK_SIZE)
-  parser.add_argument("--buckets", type=int, metavar='N', help="distribute features into N buckets", default=NUM_BUCKETS)
-  parser.add_argument("--line", action="store_true", help="treat each line in a file as a document")
+  parser.add_argument("-j", "--jobs",
+                      type=int, metavar='N', help="spawn N processes (set to 1 for no paralleization)")
+  parser.add_argument("-t", "--temp",
+                      metavar='TEMP_DIR', help="store buckets in TEMP_DIR instead of in MODEL_DIR/buckets")
+  parser.add_argument("-s", "--scanner",
+                      metavar='SCANNER', help="use SCANNER for feature counting")
+  parser.add_argument("-o", "--output",
+                      metavar='OUTPUT', help="output langid.py-compatible model to OUTPUT")
+  # parser.add_argument("-i", "--index",metavar='INDEX',help="read list of training document paths from INDEX")
+  parser.add_argument("model",
+                      metavar='MODEL_DIR', help="read index and produce output in MODEL_DIR")
+  parser.add_argument("--chunksize",
+                      type=int, help='maximum chunk size (number of files)', default=MAX_CHUNK_SIZE)
+  parser.add_argument("--buckets",
+                      type=int, metavar='N', help="distribute features into N buckets", default=NUM_BUCKETS)
+  parser.add_argument("--line",
+                      action="store_true", help="treat each line in a file as a document")
   args = parser.parse_args()
 
   if args.temp:
@@ -312,7 +323,7 @@ if __name__ == "__main__":
   # read list of training files
   with open(index_path) as f:
     reader = csv.reader(f)
-    items = [ (int(l),p) for _,l,p in reader ]
+    items = [(int(l), p) for _, l, p in reader]
 
   # read scanner
   with open(scanner_path) as f:

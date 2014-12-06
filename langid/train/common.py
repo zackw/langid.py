@@ -4,10 +4,18 @@ Common functions
 Marco Lui, January 2013
 """
 
+from contextlib import closing
+from contextlib import contextmanager
+import csv
+import errno
 from itertools import islice
 import marshal
+import multiprocessing as mp
+import numpy
+import os
 import tempfile
 import gzip
+
 
 class Enumerator(object):
   """
@@ -22,6 +30,7 @@ class Enumerator(object):
     self.n += 1
     return retval
 
+
 def chunk(seq, chunksize):
   """
   Break a sequence into chunks not exceeeding a predetermined size
@@ -31,6 +40,7 @@ def chunk(seq, chunksize):
     chunk = tuple(islice(seq_iter, chunksize))
     if not chunk: break
     yield chunk
+
 
 def unmarshal_iter(path):
   """
@@ -45,7 +55,7 @@ def unmarshal_iter(path):
       except EOFError:
         break
 
-import os, errno
+
 def makedir(path):
   try:
     os.makedirs(path)
@@ -53,7 +63,7 @@ def makedir(path):
     if e.errno != errno.EEXIST:
       raise
 
-import csv
+
 def write_weights(weights, path, sort_by_weight=False):
   w = dict(weights)
   with open(path, 'w') as f:
@@ -76,7 +86,7 @@ def write_weights(weights, path, sort_by_weight=False):
         row.append(w[k])
       writer.writerow(row)
 
-import numpy
+
 def read_weights(path):
   with open(path) as f:
     reader = csv.reader(f)
@@ -88,6 +98,7 @@ def read_weights(path):
       retval[key] = val
   return retval
 
+
 def read_features(path):
   """
   Read a list of features in feature-per-line format, where each
@@ -96,6 +107,7 @@ def read_features(path):
   """
   with open(path) as f:
     return list(map(eval, f))
+
 
 def write_features(features, path):
   """
@@ -118,11 +130,6 @@ def index(seq):
   """
   return dict((k,v) for (v,k) in enumerate(seq))
 
-      
-
-
-from contextlib import contextmanager, closing
-import multiprocessing as mp
 
 @contextmanager
 def MapPool(processes=None, initializer=None, initargs=None, maxtasksperchild=None, chunksize=1):

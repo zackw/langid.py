@@ -37,8 +37,8 @@ or implied, of the copyright holder.
 # Default values
 # Can be overriden with command-line options
 ######
-MAX_NGRAM_ORDER = 4 # largest order of n-grams to consider
-TOKENS_PER_ORDER = 15000 # number of tokens to consider for each order
+MAX_NGRAM_ORDER = 4  # largest order of n-grams to consider
+TOKENS_PER_ORDER = 15000  # number of tokens to consider for each order
 
 import os
 # import sys
@@ -65,6 +65,7 @@ from .common import MapPool
 from .common import write_features
 from .common import write_weights
 
+
 def pass_sum_df(bucket):
   """
   Compute document frequency (df) by summing up (key,domain,count) triplets
@@ -72,17 +73,18 @@ def pass_sum_df(bucket):
   """
   doc_count = defaultdict(int)
   count = 0
-  with gzip.open(os.path.join(bucket, "docfreq"),'wb') as docfreq:
+  with gzip.open(os.path.join(bucket, "docfreq"), 'wb') as docfreq:
     for path in os.listdir(bucket):
       # We use the domain buckets as there are usually less domains
       if path.endswith('.domain'):
-        for key, _, value in unmarshal_iter(os.path.join(bucket,path)):
+        for key, _, value in unmarshal_iter(os.path.join(bucket, path)):
           doc_count[key] += value
           count += 1
     
     for item in doc_count.items():
       docfreq.write(marshal.dumps(item))
   return count
+
 
 def tally(bucketlist, jobs=None):
   """
@@ -106,7 +108,6 @@ def tally(bucketlist, jobs=None):
   return doc_count
 
 
-
 def ngram_select(doc_count, max_order=MAX_NGRAM_ORDER, tokens_per_order=TOKENS_PER_ORDER):
   """
   DF feature selection for byte-ngram tokenization
@@ -121,17 +122,25 @@ def ngram_select(doc_count, max_order=MAX_NGRAM_ORDER, tokens_per_order=TOKENS_P
   return features
 
 
-
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
-  parser.add_argument("-j","--jobs", type=int, metavar='N', help="spawn N processes (set to 1 for no paralleization)")
-  parser.add_argument("-f","--features", metavar='FEATURE_FILE', help="output features to FEATURE_FILE")
-  parser.add_argument("--tokens_per_order", metavar='N', type=int, help="consider top N tokens per ngram order")
-  parser.add_argument("--tokens", metavar='N', type=int, help="consider top N tokens")
-  parser.add_argument("--max_order", type=int, help="highest n-gram order to use", default=MAX_NGRAM_ORDER)
-  parser.add_argument("--doc_count", nargs='?', const=True, metavar='DOC_COUNT_PATH', help="output full mapping of feature->frequency to DOC_COUNT_PATH")
-  parser.add_argument("--bucketlist", help="read list of buckets from")
-  parser.add_argument("model", metavar='MODEL_DIR', help="read index and produce output in MODEL_DIR")
+  parser.add_argument("-j", "--jobs",
+                      type=int, metavar='N', help="spawn N processes (set to 1 for no parallelization)")
+  parser.add_argument("-f", "--features",
+                      metavar='FEATURE_FILE', help="output features to FEATURE_FILE")
+  parser.add_argument("--tokens_per_order",
+                      metavar='N', type=int, help="consider top N tokens per ngram order")
+  parser.add_argument("--tokens",
+                      metavar='N', type=int, help="consider top N tokens")
+  parser.add_argument("--max_order",
+                      type=int, help="highest n-gram order to use", default=MAX_NGRAM_ORDER)
+  parser.add_argument("--doc_count",
+                      nargs='?', const=True, metavar='DOC_COUNT_PATH',
+                      help="output full mapping of feature->frequency to DOC_COUNT_PATH")
+  parser.add_argument("--bucketlist",
+                      help="read list of buckets from")
+  parser.add_argument("model",
+                      metavar='MODEL_DIR', help="read index and produce output in MODEL_DIR")
   
   args = parser.parse_args()
 
@@ -168,7 +177,7 @@ if __name__ == "__main__":
   print("unique features:", len(doc_count))
   if args.doc_count:
     # The constant true is used to indicate output to default location
-    doc_count_path = os.path.join(args.model, 'DF_all') if args.doc_count == True else args.doc_count
+    doc_count_path = os.path.join(args.model, 'DF_all') if args.doc_count is True else args.doc_count
     write_weights(doc_count, doc_count_path)
     print("wrote DF counts for all features to:", doc_count_path)
 
@@ -177,7 +186,7 @@ if __name__ == "__main__":
     feats = ngram_select(doc_count, args.max_order, args.tokens_per_order)
   else:
     # Choose a number of features overall
-    feats = sorted( sorted(doc_count, key=doc_count.get, reverse=True)[:args.tokens] )
+    feats = sorted(sorted(doc_count, key=doc_count.get, reverse=True)[:args.tokens])
   print("selected features: ", len(feats))
 
   write_features(feats, feature_path)

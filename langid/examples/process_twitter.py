@@ -19,7 +19,8 @@ import optparse
 
 if __name__ == "__main__":
   parser = optparse.OptionParser()
-  parser.add_option('-l', '--langs', dest='langs', help='comma-separated set of target ISO639 language codes (e.g en,de)')
+  parser.add_option('-l', '--langs',
+                    dest='langs', help='comma-separated set of target ISO639 language codes (e.g en,de)')
   opts, args = parser.parse_args()
 
   lang_set = set(opts.langs.split(",")) if opts.langs else None
@@ -36,4 +37,3 @@ if __name__ == "__main__":
   except (IOError, KeyboardInterrupt):
     # Terminate on broken pipe or ^C
     pass
-

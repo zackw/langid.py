@@ -23,16 +23,28 @@ from .NBtrain import learn_ptc
 if __name__ == "__main__":
 
   parser = argparse.ArgumentParser()
-  parser.add_argument("-o","--output", metavar="DIR", help = "write weights to DIR")
-  parser.add_argument('-f','--features', metavar="FILE", help = 'only output features from FILE')
-  parser.add_argument("-t", "--temp", metavar='TEMP_DIR', help="store buckets in TEMP_DIR instead of in MODEL_DIR/buckets")
-  parser.add_argument("-j","--jobs", type=int, metavar='N', help="spawn N processes (set to 1 for no paralleization)")
-  parser.add_argument("-m","--model", help="save output to MODEL_DIR", metavar="MODEL_DIR")
-  parser.add_argument("--buckets", type=int, metavar='N', help="distribute features into N buckets", default=NUM_BUCKETS)
-  parser.add_argument("--chunksize", type=int, help="max chunk size (number of files to tokenize at a time - smaller should reduce memory use)", default=CHUNKSIZE)
-  parser.add_argument("--no_norm", default=False, action="store_true", help="do not normalize difference in p(t|C) by sum p(t|C)")
-  parser.add_argument("corpus", help="read corpus from CORPUS_DIR", metavar="CORPUS_DIR")
-  parser.add_argument("pairs", metavar='LANG_PAIR', nargs="*", help="language pairs to compute BL weights for")
+  parser.add_argument("-o", "--output",
+                      metavar="DIR", help="write weights to DIR")
+  parser.add_argument('-f', '--features',
+                      metavar="FILE", help='only output features from FILE')
+  parser.add_argument("-t", "--temp",
+                      metavar='TEMP_DIR', help="store buckets in TEMP_DIR instead of in MODEL_DIR/buckets")
+  parser.add_argument("-j", "--jobs",
+                      type=int, metavar='N', help="spawn N processes (set to 1 for no parallelization)")
+  parser.add_argument("-m", "--model",
+                      help="save output to MODEL_DIR", metavar="MODEL_DIR")
+  parser.add_argument("--buckets",
+                      type=int, metavar='N', help="distribute features into N buckets", default=NUM_BUCKETS)
+  parser.add_argument("--chunksize",
+                      type=int,
+                      help="max chunk size (number of files to tokenize at a time - smaller should reduce memory use)",
+                      default=CHUNKSIZE)
+  parser.add_argument("--no_norm",
+                      default=False, action="store_true", help="do not normalize difference in p(t|C) by sum p(t|C)")
+  parser.add_argument("corpus",
+                      help="read corpus from CORPUS_DIR", metavar="CORPUS_DIR")
+  parser.add_argument("pairs",
+                      metavar='LANG_PAIR', nargs="*", help="language pairs to compute BL weights for")
   args = parser.parse_args()
 
   # Work out where our model directory is
@@ -114,9 +126,9 @@ if __name__ == "__main__":
   print("renormalizing P(t|C)")
   for i in range(nb_ptc.shape[1]):
     # had to de-vectorize this due to memory consumption
-    newval = np.empty_like(nb_ptc[:,i])
+    newval = np.empty_like(nb_ptc[:, i])
     for j in range(newval.shape[0]):
-      newval[j] = (1/np.exp(nb_ptc[:,i] - nb_ptc[j,i]).sum())
+      newval[j] = (1/np.exp(nb_ptc[:, i] - nb_ptc[j, i]).sum())
     nb_ptc[:,i] = newval
     assert (1.0 - newval.sum()) < 0.0001
 
@@ -131,6 +143,6 @@ if __name__ == "__main__":
     i1 = indexer.lang_index[lang1]
     i2 = indexer.lang_index[lang2]
 
-    w = dict(list(zip(feats, np.abs((nb_ptc[:,i1] - nb_ptc[:,i2]) / (nb_ptc.sum(1) if not args.no_norm else 1)))))
+    w = dict(list(zip(feats, np.abs((nb_ptc[:, i1] - nb_ptc[:, i2]) / (nb_ptc.sum(1) if not args.no_norm else 1)))))
     write_weights(w, weights_path)
     print("wrote weights to {0}".format(weights_path))
