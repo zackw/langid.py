@@ -50,6 +50,7 @@ from .common import Enumerator
 from .common import write_weights
 from .common import read_features
 
+
 def entropy(v, axis=0):
   """
   Optimized implementation of entropy. This version is faster than that in 
@@ -69,6 +70,7 @@ def entropy(v, axis=0):
     r[nan_index] = 0
   return r
 
+
 def setup_pass_IG(features, dist, binarize, suffix):
   """
   @param features the list of features to compute IG for
@@ -81,6 +83,7 @@ def setup_pass_IG(features, dist, binarize, suffix):
   __dist = dist
   __binarize = binarize
   __suffix = suffix
+
 
 def pass_IG(buckets):
   """
@@ -104,20 +107,20 @@ def pass_IG(buckets):
   term_index = defaultdict(Enumerator())
 
   for bucket in buckets:
-		for path in os.listdir(bucket):
-			if path.endswith(__suffix):
-				for key, event_id, count in unmarshal_iter(os.path.join(bucket,path)):
-					# Select only our listed features
-					if key in __features:
-						term_index[key]
-						term_freq[key][event_id] += count
+    for path in os.listdir(bucket):
+      if path.endswith(__suffix):
+        for key, event_id, count in unmarshal_iter(os.path.join(bucket, path)):
+          # Select only our listed features
+          if key in __features:
+            term_index[key]
+            term_freq[key][event_id] += count
 
   num_term = len(term_index)
   num_event = len(__dist)
 
   cm_pos = numpy.zeros((num_term, num_event), dtype='int')
 
-  for term,term_id in term_index.items():
+  for term, term_id in term_index.items():
     # update event matrix
     freq = term_freq[term]
     for event_id, count in freq.items():
@@ -145,14 +148,14 @@ def pass_IG(buckets):
       prior = numpy.array((num_doc - __dist[event_id], __dist[event_id]), dtype=float) / num_doc
 
       cm_bin = numpy.zeros((num_term, 2, 2), dtype=int) # (term, p(term), p(lang|term))
-      cm_bin[:,0,:] = cm.sum(axis=1) - cm[:,event_id,:]
-      cm_bin[:,1,:] = cm[:,event_id,:]
+      cm_bin[:, 0, :] = cm.sum(axis=1) - cm[:, event_id, :]
+      cm_bin[:, 1, :] = cm[:, event_id, :]
 
       e = entropy(cm_bin, axis=1)
       x = cm_bin.sum(axis=1)
       term_w = x / x.sum(axis=1)[:, None].astype(float)
 
-      ig.append( entropy(prior) - (term_w * e).sum(axis=1) )
+      ig.append(entropy(prior) - (term_w * e).sum(axis=1))
     ig = numpy.vstack(ig)
 
   terms = sorted(term_index, key=term_index.get)
@@ -182,6 +185,7 @@ def compute_IG(bucketlist, features, dist, binarize, suffix, job_count=None):
 
   return list(zip(terms, weights))
 
+
 def read_dist(path):
   """
   Read the distribution from a file containing item, count pairs.
@@ -193,14 +197,22 @@ def read_dist(path):
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
-  parser.add_argument("-j","--jobs", type=int, metavar='N', help="spawn N processes (set to 1 for no paralleization)")
-  parser.add_argument("-f","--features", metavar='FEATURE_FILE', help="read features from FEATURE_FILE")
-  parser.add_argument("-w","--weights", metavar='WEIGHTS', help="output weights to WEIGHTS")
-  parser.add_argument("-d","--domain", action="store_true", default=False, help="compute IG with respect to domain")
-  parser.add_argument("-b","--binarize", action="store_true", default=False, help="binarize the event space in the IG computation")
-  parser.add_argument("-l","--lang", action="store_true", default=False, help="compute IG with respect to language")
-  parser.add_argument("model", metavar='MODEL_DIR', help="read index and produce output in MODEL_DIR")
-  parser.add_argument("buckets", nargs='*', help="read bucketlist from")
+  parser.add_argument("-j", "--jobs",
+                      type=int, metavar='N', help="spawn N processes (set to 1 for no parallelization)")
+  parser.add_argument("-f", "--features",
+                      metavar='FEATURE_FILE', help="read features from FEATURE_FILE")
+  parser.add_argument("-w", "--weights",
+                      metavar='WEIGHTS', help="output weights to WEIGHTS")
+  parser.add_argument("-d", "--domain",
+                      action="store_true", default=False, help="compute IG with respect to domain")
+  parser.add_argument("-b", "--binarize",
+                      action="store_true", default=False, help="binarize the event space in the IG computation")
+  parser.add_argument("-l", "--lang",
+                      action="store_true", default=False, help="compute IG with respect to language")
+  parser.add_argument("model",
+                      metavar='MODEL_DIR', help="read index and produce output in MODEL_DIR")
+  parser.add_argument("buckets",
+                      nargs='*', help="read bucketlist from")
 
   args = parser.parse_args()
   if not(args.domain or args.lang) or (args.domain and args.lang):
@@ -222,10 +234,10 @@ if __name__ == "__main__":
   features = read_features(feature_path)
 
   if args.domain:
-    index_path = os.path.join(args.model,'domain_index')
+    index_path = os.path.join(args.model, 'domain_index')
     suffix = '.domain'
   elif args.lang:
-    index_path = os.path.join(args.model,'lang_index')
+    index_path = os.path.join(args.model, 'lang_index')
     suffix = '.lang'
   else:
     raise ValueError("no event specified")
