@@ -49,7 +49,7 @@ import argparse
 import csv
 import shutil
 import marshal
-import multiprocessing as mp
+# import multiprocessing as mp
 import random
 import atexit
 import gzip
@@ -57,6 +57,9 @@ import tempfile
 
 from itertools import tee 
 from collections import defaultdict, Counter
+
+from multiprocessing import cpu_count
+from multiprocessing import current_process
 
 from .common import makedir, chunk, MapPool
 
@@ -70,17 +73,17 @@ class NGramTokenizer(object):
     min_order = self.min_order
     max_order = self.max_order
     t = tee(seq, max_order)
-    for i in xrange(max_order):
-      for j in xrange(i):
+    for i in range(max_order):
+      for j in range(i):
         # advance iterators, ignoring result
         t[i].next()
     while True:
       token = ''.join(tn.next() for tn in t)
       if len(token) < max_order: break
-      for n in xrange(min_order-1, max_order):
+      for n in range(min_order-1, max_order):
         yield token[:n+1]
-    for a in xrange(max_order-1):
-      for b in xrange(min_order, max_order-a):
+    for a in range(max_order-1):
+      for b in range(min_order, max_order-a):
         yield token[a:a+b]
 
 
@@ -94,17 +97,17 @@ class WordNGramTokenizer(object):
     min_order = self.min_order
     max_order = self.max_order
     t = tee(_seq, max_order)
-    for i in xrange(max_order):
-      for j in xrange(i):
+    for i in range(max_order):
+      for j in range(i):
         # advance iterators, ignoring result
         t[i].next()
     while True:
       token = [tn.next() for tn in t]
       if len(token) < max_order: break
-      for n in xrange(min_order-1, max_order):
+      for n in range(min_order-1, max_order):
         yield ' '.join(token[:n+1])
-    for a in xrange(max_order-1):
-      for b in xrange(min_order, max_order-a):
+    for a in range(max_order-1):
+      for b in range(min_order, max_order-a):
         yield ' '.join(token[a:a+b])
 
 
@@ -153,7 +156,7 @@ def pass_tokenize(chunk_items):
         text = f.read()
         poss = max(1, len(text) - __sample_size)  # possible start locations
         count = min(poss, __sample_count)  # reduce number of samples if document is too short
-        offsets = random.sample(xrange(poss), count)
+        offsets = random.sample(range(poss), count)
         for offset in offsets:
           tokens = extractor(text[offset: offset+__sample_size])
           if args.__term_freq:
@@ -193,9 +196,9 @@ def pass_tokenize(chunk_items):
           term_dom_freq[token][domain_id] += count
 
   # Output the counts to the relevant bucket files. 
-  __procname = mp.current_process().name
-  b_freq_lang = [gzip.open(os.path.join(p,__procname+'.lang'),'a') for p in __b_dirs]
-  b_freq_domain = [gzip.open(os.path.join(p,__procname+'.domain'),'a') for p in __b_dirs]
+  __procname = current_process().name
+  b_freq_lang = [gzip.open(os.path.join(p,__procname+'.lang'), 'a') for p in __b_dirs]
+  b_freq_domain = [gzip.open(os.path.join(p,__procname+'.domain'), 'a') for p in __b_dirs]
 
   for term in term_lng_freq:
     bucket_index = hash(term) % len(b_freq_lang)
@@ -223,7 +226,7 @@ def build_index(items, tokenizer, outdir, buckets=NUM_BUCKETS,
   complete = False 
 
   if jobs is None:
-    jobs = mp.cpu_count() + 4
+    jobs = cpu_count() + 4
 
   b_dirs = [ os.path.join(outdir,"bucket{0}".format(i)) for i in range(buckets) ]
 
