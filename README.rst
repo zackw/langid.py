@@ -4,9 +4,9 @@
 
 Mini-Intro for this Fork
 ------------------------
-This is a fork of `ssafd's langid.py module <https://github.com/saffsd/langid.py/)>`_ for Python 3 compatibility.
-I'm using the same langid.py file as `saffsd <https://github.com/saffsd>`_, and have run everything else through the 2to3 auto-transformer; I've
-also made some style tweaks, but otherwise the changes are minimal.
+This is a fork of `saffsd's langid.py module <https://github.com/saffsd/langid.py/)>`_ for Python 3 compatibility.
+I'm using the same langid.py file as `saffsd <https://github.com/saffsd>`_, and have run everything else through the 2to3 auto-transformer. I've
+also made some style tweaks based on PEP 8. These changes are all pretty minimal. **My testing has been minimal as well**. Nothing should explode, but take care. Ok, that's it for me. Have fun! - `pmlandwehr <https://github.com/pmlandwehr`_ *December 7, 2014*
 
 Introduction
 ------------
@@ -22,7 +22,7 @@ The design principles are as follows:
 5. Deployable as a web service
 
 All that is required to run ``langid.py`` is >= Python 2.5 and numpy.  
-``langid.py`` is WSGI-compliant.  ``langid.py`` will use ``fapws3`` as a web server if 
+``langid.py`` is WSGI-compliant.  ``langid.py`` will use ``fapws3`` as a web server if
 available, and default to ``wsgiref.simple_server`` otherwise.
 
 ``langid.py`` comes pre-trained on 97 languages (ISO 639-1 codes given):
