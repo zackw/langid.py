@@ -2,6 +2,12 @@
 ``langid.py`` readme
 ================
 
+Mini-Intro for this Fork
+------------------------
+This is a fork of `ssafd's langid.py module <https://github.com/saffsd/langid.py/)>`_ for Python 3 compatibility.
+I'm using the same langid.py file as `saffsd <https://github.com/saffsd>`_, and have run everything else through the 2to3 auto-transformer; I've
+also made some style tweaks, but otherwise the changes are minimal.
+
 Introduction
 ------------
 
