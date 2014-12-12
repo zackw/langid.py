@@ -108,6 +108,7 @@ def unpack_model(model):
                 model = fn(model)
             return model
 
+    import base64
     raise RuntimeError("model format not recognized (first six bytes: %s)"
                        % base64.b16encode(model[:6]).decode("ascii").lower())
 
