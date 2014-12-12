@@ -1,0 +1,68 @@
+# Zimanê kurdî (Kurdish languages)
+# Wikipedia
+# Kurdish (specifics unclear)
+# https://ku.wikipedia.org/wiki/Ziman%C3%AA_kurd%C3%AE
+
+Zimanê kurdî, zimanekî ji şaxa zimanên îranî yê bakûr rojavayê malbata
+zimanên hind û ewropî ye. Piraniya gelê li Kurdistanê bi vî zimanî
+diaxivin û zimanê sereke yê piraniya kurdan ev ziman e.
+
+Çend zaravayên kurdî hene; kurmancî li bakur, başûr, rojhilat û
+rojavayê Kurdistanê, soranî li başûr û rojhilat tê bikaranîn. Kurmancî
+bi piranî bi tîpên latînî tê nivîsîn û soranî bi tîpên erebî. Piraniya
+kurdan li seranserî cîhanê bi kurmancî diaxivin.
+
+Koda ISO 639-1 ya kurdî KU ye. Koda ISO 639-2 ya kurdî KUR ye. Koda
+DIN 2335 ya kurdî KU ye.
+
+Li gor belavbûna erdnîgarî, zimanê Kurdî ji bilî welatên Ewropa û yên
+biyanî bi taybetî li hemî erdnîgariya xwe yanî li hemî herêmên
+Kurdistanê tê bikaranîn. Tevlî navçeyîbûyînê ji nifşê mirovên vî
+navçê, gellek gel, ji rojava heta rojhilatê, li gellek welatan zêde û
+belav bûne. Lewra ye ku zimanê kurdî, yê ku li ser axeke fireh tê
+axaftin, ji gelek zaravayan pêk tê.
+
+Li gor Şerefname, zaravayên kurdî, eşîret, komên kurd ji alî ziman,
+kevneşopî û rewşên civakî di nav çar beşan de ji hev cuda dibin:
+
+    Kurmancî
+    Lor
+    Kelhûr
+    Goran
+
+Kurmanciya bakur (kurmancî) û kurmanciya başûr (soranî) du zaravayên
+sereke ne. Ev her du zarava wekî zaravayên ku xwediyê wêjeyeke nivîskî
+ne, têne pejirandin. Van demên dawîn, zaravayê kirmanckî
+(dimilkî-zazakî) jî hêdî hêdî ber bi nivîskîbûnê ve gavan diavêje.
+
+Di nav zaravayên kurdî de zaravayê ku herî zêde pê tê axaftin kurmancî
+ye. Kurmancî li hemû deverên ku kurd lê dijîn pê tê axaftin. Pirraniya
+kurdên ku kurmancî û zazakî diaxivin li Tirkiyê dijîn. Ji bilî çend
+deverên mîna Anatoliyaya Navîn û Qerejdaxê, ku şêxbizinî lê dijîn. Ev
+jî devoka soranî ye. Tevliheviya di warê zaravayan de pirî caran jî,
+ji ber navlêkirinê tê. Wek nimûne, ji bo kurmanciya bakur, li başûr «
+behdînî » û li rojhilat jî « şikakî » tê gotin. Her wiha ji bo
+zaravayê kurmanciya jêrîn jî, « kurmanciya xwarû », « soranî » tê
+gotin. Heman tevlihevî di warê dimilkî de jî balê dikişîne. Navên wekî
+« kirdkî », « kirmanckî », « dimilî », « dêrsimkî », « sobê » hwd têne
+bikaranîn. Ji bo hewramî jî navê « goranî » tê bikaranîn. Wekî ji
+mînakên jorîn jî xuya dibe, navên ku hemû lêkolîner li ser li hev
+dikin, navên mîna kurdî, kurmancî, kirmanckî û kirdkî ne. Navên din
+tev navên herêm û êl û eşîran in.
+
+Kurmancî an kurmanciya jorîn yek ji zaravayên zimanê kurdî ye.
+
+Zaravayê kurmancî zaravayê kurdî yê ku herî zêde tê bikaranîn
+e. Zaravayê kurmancî li beşeke mezin ji bakurê Kurdistanê, li başûrê
+rojavayê Kurdistanê, li bakurê Herêma Kurdistanê (başûrê Kurdistanê),
+li bakurê rojhilatê Kurdistanê, li Ermenistanê, li Xorasanê, li nav
+kurdên Qafqasyayê, li Anatoliya Navîn û li Diyazporayê (Ewropa,
+Amerîka) pê tê axaftin.
+
+Soranî, kurdî an jî kurmanciya navendî, zaravayekî zimanê kurdî ye. Di
+rastiya xwe de ev navê devokekê ye ku li nêzîkî Silêmaniyê tê axaftin,
+lê di pêvajoya dîrokî de navê xwe li hemû devokên zaravayê kurdiya
+navendî kiriye. Îro devokên mukrî, kurdî û yên din bi navê soranî têne
+nasîn. Bi giştî bi tîpên kurdî-erebî tê nivîsandin; herwiha, gotarên
+bi tîpên latînî jî hene. Soranî zêdetir li Kurdistana başûr û rojhilat
+tê bikaranîn.
